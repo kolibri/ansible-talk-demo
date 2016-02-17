@@ -1,0 +1,11 @@
+#ansible-demo-ubuntu.dev ansible_connection=local
+
+# use groups, and assign group vars
+[vagrant]
+ansible-demo-ubuntu.dev
+ansible-demo-osx.dev
+ansible-demo-arch.dev ansible_python_interpreter=/usr/bin/python2
+
+[vagrant:vars]
+ansible_user=vagrant
+ansible_ssh_pass=vagrant

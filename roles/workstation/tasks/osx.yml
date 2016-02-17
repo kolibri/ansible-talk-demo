@@ -1,0 +1,55 @@
+---
+- name: dertimine if xcode is installed
+  command: xcode-select -p
+  ignore_errors: true
+  register: xcode_is_installed
+  tags:
+    - always
+
+- debug: var=xcode_is_installed
+  tags:
+    - always
+
+- block:
+    - name: create in progress file for sus xcode install
+      file:
+        dest: /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+        state: touch
+    - name: run software update for xcode
+      shell: softwareupdate -i `softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n'` -v
+  rescue:
+    - name: remove in-progress file for xcode
+      file:
+        dest: /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+        state: absent
+    - debug: msg='Installing xcode with sus failed! You can try again, or run (by hand) xcode-select --install'
+  when: xcode_is_installed.rc > 0
+  tags:
+    - packages
+
+- block:
+  - name: install homebrew
+    shell: ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null
+    args:
+      creates: /usr/local/bin/brew
+    tags:
+      - packages
+  - name: set package manager to homebrew
+    set_fact:
+      ansible_pkg_mgr = "homebrew"
+
+- name: write osx defaults
+  osx_defaults: 
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+    state: present
+  with_items:
+    - 
+      key: 'com.apple.swipescrolldirection'
+      type: 'bool'
+      value: 'false'
+    - 
+      key: 'AppleKeyboardUIMode'
+      type: 'int'
+      value: '3'

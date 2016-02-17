@@ -1,0 +1,29 @@
+---
+- name: Get all host variables
+  debug: 
+    var: hostvars[item]
+  tags:
+    - debug
+  with_items: "{{ groups.all }}"
+
+- include: osx.yml
+  when: ansible_distribution == "MacOSX"
+
+- include: ubuntu.yml
+  when: ansible_distribution == "Ubuntu"
+
+- include: common.yml
+- include: git.yml
+- include: zsh.yml
+
+# not yet finished
+#- include: docker.yml
+
+
+#- name: ensure root privileges
+#  become: true
+#  lineinfile: 
+#    dest: /etc/sudoers 
+#    state: present 
+#    regexp: '^{{ ws.user.name }} ALL\=' line='{{ ws.user.home }} ALL=(ALL) NOPASSWD:ALL'
+#    validate: 'visudo -cf %s'

@@ -1,0 +1,13 @@
+---
+ws:
+  user:
+    name: vagrant
+    group: vagrant
+    #python2 -c 'import crypt; print crypt.crypt("vagrant", "$1$SomeSalt")' # do not run on osx...
+    pass: "$1$SomeSalt$hgwu0g0i6rC6tadFj.71O0"
+  git:
+    user: "Torben Tester"
+    mail: torben@tester.dev
+  zsh:
+    theme: ko
+    plugins: "git vagrant"

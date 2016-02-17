@@ -1,0 +1,9 @@
+---
+- name: set git config
+  shell: git config --global {{ item.key }} {{ item.value }}
+  with_items:
+    - { key: 'core.excludesfile', value: '~/.gitignore' }
+    - { key: 'push.default',      value: 'simple' }
+    - { key: 'user.name',         value: ws.git.user }
+    - { key: 'user.email',        value: ws.git.mail }
+  tags: [git]

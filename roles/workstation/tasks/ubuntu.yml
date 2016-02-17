@@ -1,0 +1,19 @@
+---
+- name: ensure python setup tools
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - python-setuptools
+    - python-pip
+#    - docker.io
+  tags:
+    - packages
+
+#- name: docker link
+#  become: true
+#  file:
+#    src: /usr/bin/docker.io
+#    dest: /usr/local/bin/docker
+#    state: link

@@ -1,0 +1,6 @@
+---
+ws:
+  user:
+    home: /home/vagrant
+  ansible:
+    path: /home/vagrant/ansible-git

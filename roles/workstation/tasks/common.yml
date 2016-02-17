@@ -1,0 +1,86 @@
+---
+- name: update apt
+  # new fact in ansible 2.0
+  when: ansible_pkg_mgr == "apt"
+  # replaces "sudo"
+  become: true
+  apt: update_cache=yes
+  tags:
+    - packages
+
+- name: update pacman
+  when: ansible_pkg_mgr == "pacman"
+  become: true
+  pacman: update_cache=yes upgrade=yes
+  tags:
+    - packages
+
+- name: install git and zsh
+  #become: "{{ ansible_pkg_mgr != 'homebrew' }}"
+  become: true
+  package: 
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - git
+    - zsh
+  tags: 
+    - packages
+
+- name: install ansible requirements with pip
+  become: "{{ ansible_pkg_mgr != 'homebrew' }}"
+  pip: 
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - paramiko
+    - PyYAML
+    - Jinja2
+    - httplib2
+    - six
+  tags: 
+    - packages
+
+- name: checkout git repos. ansible, oh-my-zsh
+  git: 
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest }}"
+    recursive: yes
+    accept_hostkey: yes
+  with_items:
+    - 
+      repo: 'https://github.com/ansible/ansible.git'
+      dest: "{{ ws.ansible.path }}"
+    - 
+      repo: 'git://github.com/robbyrussell/oh-my-zsh.git'
+      dest: "{{ ws.user.home }}/.oh-my-zsh"
+  tags:
+    - packages
+
+- name: ensure user
+  become: true
+  user: 
+    name: "{{ ws.user.name }}"
+    groups: "{{ ws.user.group }}"
+    append: yes 
+    generate_ssh_key: yes
+    shell: "/bin/zsh"
+    # crypt.crypt("vagrant", "$1$SomeSalt")
+    password: "{{ ws.user.pass }}"
+
+
+# host file
+- name: ensure localhost in hostfile
+  become: true
+  lineinfile:
+    dest: /etc/hosts
+    line: "127.0.0.1 {{ inventory_hostname }}"
+
+- name: ansure all hosts in hostfile
+  become: true
+  when: hostvars[item]['inventory_hostname'] != inventory_hostname
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}"
+  with_items: "{{ groups.all }}"
+

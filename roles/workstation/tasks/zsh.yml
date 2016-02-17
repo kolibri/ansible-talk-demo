@@ -1,0 +1,11 @@
+---
+- name: copy ko zsh theme
+  copy: 
+    src: ko.zsh-theme 
+    dest: "{{ ws.user.home }}/.oh-my-zsh/custom/ko.zsh-theme"
+
+- name: set .zshrc
+  template: 
+    src: zshrc.j2 
+    dest: "{{ ws.user.home }}/.zshrc"
+
